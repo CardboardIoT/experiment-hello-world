@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+var mqtt = require('../lib/mqtt'),
+    fs   = require('fs');
+
+var parser = require('optimist')
+    .usage('Log messages going through broker\nUsage: $0');
+
+var args = parser.argv;
+
+var client = mqtt.connect();
+
+client.on('connect', function () {
+  console.log('Connected');
+  client.subscribe('ciot/test');
+  console.log('Subscribed');
+});
+
+client.on('message', function (topic, payload) {
+  console.log(topic, payload);
+});
