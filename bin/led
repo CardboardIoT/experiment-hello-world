@@ -1,0 +1,37 @@
+#!/usr/bin/env node
+
+var mqtt = require('mqtt'),
+    fs   = require('fs');
+
+var parser = require('optimist')
+    .usage('Turn on LED on/off\nUsage: $0 --id [id] [on|off]')
+    .demand(['id'])
+    .string('id')
+    .default('type', 'led')
+
+var args = parser.argv;
+
+var valid = ['on', 'off'];
+
+var state = args._[0];
+
+if (!state || valid.indexOf(state) === -1) {
+  parser.showHelp();
+  process.exit();
+}
+
+var caCert = fs.readFileSync(__dirname + '/../certs/mosquitto.org.crt');
+var client  = mqtt.connect(
+  'mqtts://test.mosquitto.org',
+  { ca: caCert }
+);
+
+var msg = { type: args.type, id: args.id, data: { on: state === 'on' }};
+
+client.on('connect', function () {
+  console.log('Connected');
+  client.publish('ciot/test', JSON.stringify(msg));
+  console.log('Published');
+  client.end();
+  console.log('ended');
+});
