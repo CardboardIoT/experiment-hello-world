@@ -19,6 +19,8 @@ board.on('ready', function() {
   // Create a standard `led` component instance
   // Connected to pin 7
   components.led[0] = new five.Led(7);
+  // Put into known state
+  components.led[0].off();
 
   // "blink" the led in 500ms
   // on-off phase periods
@@ -59,4 +61,12 @@ function handleMessage(msg) {
   } else {
     console.log('Not type led or no id');
   }
+}
+
+process.on('SIGINT', shutdown);
+
+function shutdown() {
+  console.log( "Exiting" );
+  components.led[0].off();
+  process.exit();
 }
