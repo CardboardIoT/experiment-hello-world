@@ -1,10 +1,6 @@
 var five = require('johnny-five'),
     raspi = require('raspi-io'),
-    mqtt = require('mqtt'),
-    fs = require('fs');
-
-var caCert = fs.readFileSync('./certs/mosquitto.org.crt'),
-    mqttBroker = 'mqtts://test.mosquitto.org';
+    mqtt = require('./lib/mqtt');
 
 var components = {
   led: []
@@ -27,7 +23,7 @@ board.on('ready', function() {
   // led.blink(500);
 });
 
-var client  = mqtt.connect(mqttBroker, { ca: caCert });
+var client  = mqtt.connect();
 
 client.on('connect', function () {
   console.log('MQTT: connected');

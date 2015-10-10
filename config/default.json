@@ -1,0 +1,8 @@
+{
+  "broker": {
+    "protocol": "mqtts",
+    "hostname": "test.mosquitto.org",
+    "port": 8883,
+    "caFile": "mosquitto.org.crt"
+  }
+}

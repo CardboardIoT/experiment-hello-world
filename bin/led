@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var mqtt = require('mqtt'),
+var mqtt = require('../lib/mqtt'),
     fs   = require('fs');
 
 var parser = require('optimist')
@@ -20,11 +20,7 @@ if (!state || valid.indexOf(state) === -1) {
   process.exit();
 }
 
-var caCert = fs.readFileSync(__dirname + '/../certs/mosquitto.org.crt');
-var client  = mqtt.connect(
-  'mqtts://test.mosquitto.org',
-  { ca: caCert }
-);
+var client = mqtt.connect();
 
 var msg = { type: args.type, id: args.id, data: { on: state === 'on' }};
 
