@@ -1,0 +1,11 @@
+[Service]
+WorkingDirectory=/home/pi/device
+ExecStart=/usr/local/bin/npm start
+Restart=always
+StandardOutput=syslog
+SyslogIdentifier=ciot-device
+Environment=NODE_ENV=production
+# Environment=ANOTHER_KEY=true
+
+[Install]
+WantedBy=multi-user.target

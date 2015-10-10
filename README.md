@@ -34,3 +34,9 @@ All messages must have an `id` string which indicated which component to target.
 
 || Type || Data                    ||
 |  led  |  { "on": <true|false> }   |
+
+## Run on startup
+
+If using Raspbian Jessie (the latest version):
+
+    sudo mv ciot-device.service /etc/systemd/system/ciot-device.service 
