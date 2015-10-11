@@ -1,50 +1,64 @@
 var five = require('johnny-five'),
     raspi = require('raspi-io'),
+    Promise = require('es6-promise').Promise,
     mqtt = require('./lib/mqtt');
 
 var components = {
   led: []
 };
 
-var board = new five.Board({
-  io: new raspi(),
-  repl: false
-});
+init();
 
-board.on('ready', function() {
-  // Create a standard `led` component instance
-  // Connected to pin 7
-  components.led[0] = new five.Led(7);
-  // Put into known state
-  components.led[0].off();
+function init() {
+  createBoard()
+    .then(connectMqtt);
+}
 
-  // "blink" the led in 500ms
-  // on-off phase periods
-  // led.blink(500);
-});
+function createBoard() {
+  return new Promise(function (resolve, reject) {
+    var board = new five.Board({
+      io: new raspi(),
+      repl: false
+    });
 
-var client  = mqtt.connect();
+    board.on('ready', function() {
+      // Connected to pin 7
+      components.led[0] = new five.Led(7);
+      // Put into known state
+      components.led[0].off();
 
-client.on('connect', function () {
-  console.log('MQTT: connected');
-  client.subscribe('ciot/test');
-  console.log('MQTT: subscribed');
-});
+      // Pass control to next promise
+      resolve();
+    });
+  });
+}
 
-client.on('message', function (topic, message) {
-  var data;
-  // message is Buffer
-  try {
-    data = JSON.parse(message);
-    console.log('Data: ', data);
-    handleMessage(data);
-  } catch(err) {
-    console.error('Error parsing message as JSON');
-    console.error(' Topic:', topic);
-    console.error(' Original message:');
-    console.error(' ', message.toString())
-  }
-});
+function connectMqtt() {
+  return new Promise(function (resolve, reject) {
+    var client = mqtt.connect();
+
+    client.on('connect', function () {
+      console.log('MQTT: connected');
+      client.subscribe('ciot/test');
+      console.log('MQTT: subscribed');
+      resolve();
+    });
+
+    client.on('message', function (topic, message) {
+      var data;
+      try {
+        data = JSON.parse(message);
+        console.log('Data: ', data);
+        handleMessage(data);
+      } catch(err) {
+        console.error('Error parsing message as JSON');
+        console.error(' Topic:', topic);
+        console.error(' Original message:');
+        console.error(' ', message.toString())
+      }
+    });
+  });
+}
 
 function handleMessage(msg) {
   if (msg.type === 'led' && msg.id) {

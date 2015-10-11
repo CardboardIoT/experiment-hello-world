@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "config": "^1.16.0",
+    "es6-promise": "^3.0.2",
     "johnny-five": "^0.8.100",
     "mqtt": "^1.4.3",
     "optimist": "^0.6.1"
