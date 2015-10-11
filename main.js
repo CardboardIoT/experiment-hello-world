@@ -23,7 +23,7 @@ function createBoard() {
 
     board.on('ready', function() {
       // Connected to pin 7
-      components.led[0] = new five.Led(7);
+      components.led[0] = new five.Led(0);
       // Put into known state
       components.led[0].off();
 
