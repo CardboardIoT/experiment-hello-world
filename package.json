@@ -17,6 +17,6 @@
     "optimist": "^0.6.1"
   },
   "optionalDependencies": {
-    "raspi-io": "^4.0.0"
+    "raspi-io": "andrewn/raspi-io#support-internal-pull-up"
   }
 }
