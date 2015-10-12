@@ -87,6 +87,10 @@ function connectMqtt(events) {
       resolve(client);
     });
 
+    events.on('mqtt:send', function (topic, payload) {
+      client.publish(topic, JSON.stringify(payload));
+    });
+
     client.on('message', function (topic, message) {
       var data;
       try {
@@ -107,12 +111,21 @@ function bindActions(events) {
   events.on('mqtt:message', handleMessage);
   events.on('button:press', function () {
     console.log('button press');
+    events.emit('mqtt:send', 'ciot/test',
+      { type: 'button', id: '0', data: { state: 'press' } }
+    );
   });
   events.on('button:hold', function () {
     console.log('button hold');
+    events.emit('mqtt:send', 'ciot/test',
+      { type: 'button', id: '0', data: { state: 'hold' } }
+    );
   });
   events.on('button:release', function () {
     console.log('button release');
+    events.emit('mqtt:send', 'ciot/test',
+      { type: 'button', id: '0', data: { state: 'release' } }
+    );
   });
 }
 
