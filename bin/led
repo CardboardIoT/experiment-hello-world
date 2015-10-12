@@ -4,8 +4,9 @@ var mqtt = require('../lib/mqtt'),
     fs   = require('fs');
 
 var parser = require('optimist')
-    .usage('Turn on LED on/off\nUsage: $0 --id [id] [on|off]')
-    .demand(['id'])
+    .usage('Turn on LED on/off\nUsage: $0 --device [device-id] --id [id] [on|off]')
+    .demand(['device', 'id'])
+    .string('device')
     .string('id')
     .default('type', 'led')
 
@@ -26,8 +27,13 @@ var msg = { type: args.type, id: args.id, data: { on: state === 'on' }};
 
 client.on('connect', function () {
   console.log('Connected');
-  client.publish('ciot/test', JSON.stringify(msg));
-  console.log('Published');
+  var t = mqtt.topicForParams({
+        device: args.device,
+        action: 'command',
+        type: args.type
+      }),
+      json = JSON.stringify(msg);
+  client.publish(t, json);
+  console.log('Published', t, json);
   client.end();
-  console.log('ended');
 });

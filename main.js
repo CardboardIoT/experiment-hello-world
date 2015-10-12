@@ -2,6 +2,7 @@ var five = require('johnny-five'),
     RaspiIO = require('raspi-io'),
     Promise = require('es6-promise').Promise,
     EventEmitter = require('events').EventEmitter,
+    config = require('config'),
     mqtt = require('./lib/mqtt');
 
 var components = {
@@ -19,7 +20,8 @@ function init() {
   Promise
     .all([createBoard(events), connectMqtt(events)])
     // Pass event bus as first parameter
-    .then(bindActions.bind(null, events));
+    .then(bindActions.bind(null, events), console.error.bind(console))
+    .catch(console.error.bind(console));
 }
 
 /*
@@ -78,17 +80,24 @@ function createBoard(events) {
 */
 function connectMqtt(events) {
   return new Promise(function (resolve, reject) {
-    var client = mqtt.connect();
+    var client = mqtt.connect(),
+        subscriptionTopic = mqtt.topicForParams({
+          action: 'command',
+          type: '#',
+          device: config.get('id')
+        });
 
     client.on('connect', function () {
       console.log('MQTT: connected');
-      client.subscribe('ciot/test');
-      console.log('MQTT: subscribed');
+      client.subscribe(subscriptionTopic);
+      console.log('MQTT: subscribed to: ', subscriptionTopic);
       resolve(client);
     });
 
     events.on('mqtt:send', function (topic, payload) {
-      client.publish(topic, JSON.stringify(payload));
+      var msg = JSON.stringify(payload);
+      console.log('MQTT: publish', topic, msg);
+      client.publish(topic, msg);
     });
 
     client.on('message', function (topic, message) {
@@ -109,21 +118,26 @@ function connectMqtt(events) {
 
 function bindActions(events) {
   events.on('mqtt:message', handleMessage);
+  var buttonEmitTopic = mqtt.topicForParams({
+    device: config.get('id'),
+    type: 'button',
+    action: 'event'
+  });
   events.on('button:press', function () {
     console.log('button press');
-    events.emit('mqtt:send', 'ciot/test',
+    events.emit('mqtt:send', buttonEmitTopic,
       { type: 'button', id: '0', data: { state: 'press' } }
     );
   });
   events.on('button:hold', function () {
     console.log('button hold');
-    events.emit('mqtt:send', 'ciot/test',
+    events.emit('mqtt:send', buttonEmitTopic,
       { type: 'button', id: '0', data: { state: 'hold' } }
     );
   });
   events.on('button:release', function () {
     console.log('button release');
-    events.emit('mqtt:send', 'ciot/test',
+    events.emit('mqtt:send', buttonEmitTopic,
       { type: 'button', id: '0', data: { state: 'release' } }
     );
   });
