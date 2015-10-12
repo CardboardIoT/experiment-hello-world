@@ -1,6 +1,7 @@
 var five = require('johnny-five'),
     RaspiIO = require('raspi-io'),
     Promise = require('es6-promise').Promise,
+    EventEmitter = require('events').EventEmitter,
     mqtt = require('./lib/mqtt');
 
 var components = {
@@ -11,17 +12,24 @@ var components = {
 init();
 
 function init() {
-  createBoard()
-    .then(connectMqtt);
-}
+  var events = new EventEmitter();
 
+  process.on('SIGINT', shutdown.bind(null, events));
+
+  Promise
+    .all([createBoard(events), connectMqtt(events)])
+    // Pass event bus as first parameter
+    .then(bindActions.bind(null, events));
+}
 
 /*
   Setup JohnnyFive and configure components
 */
-function createBoard() {
+function createBoard(events) {
   return new Promise(function (resolve, reject) {
-    var board = new five.Board({
+    var board;
+
+    board = new five.Board({
       io: new RaspiIO(),
       repl: false
     });
@@ -32,6 +40,11 @@ function createBoard() {
       led = new five.Led(0);
       led.off();
 
+      // Turn LED off on app exit
+      events.on('app:exit', function () {
+        led.off();
+      });
+
       // Store LED at id 0
       components.led[0] = led;
 
@@ -41,23 +54,21 @@ function createBoard() {
         isPullup: true
       });
 
-      button.on("hold", function() {
-        console.log( "Button held" );
+      button.on("hold", function handleButtonHold() {
+        events.emit('button:hold', button);
       });
 
       button.on("press", function() {
-        console.log( "Button pressed" );
-        led.on();
+        events.emit('button:press', button);
       });
 
       button.on("release", function() {
-        console.log( "Button released" );
-        led.off();
+        events.emit('button:release', button);
       });
       components.button[0] = button;
 
       // Pass control to next promise
-      resolve();
+      resolve(components);
     });
   });
 }
@@ -65,7 +76,7 @@ function createBoard() {
 /*
   Connect to the MQTT broker
 */
-function connectMqtt() {
+function connectMqtt(events) {
   return new Promise(function (resolve, reject) {
     var client = mqtt.connect();
 
@@ -73,7 +84,7 @@ function connectMqtt() {
       console.log('MQTT: connected');
       client.subscribe('ciot/test');
       console.log('MQTT: subscribed');
-      resolve();
+      resolve(client);
     });
 
     client.on('message', function (topic, message) {
@@ -81,7 +92,7 @@ function connectMqtt() {
       try {
         data = JSON.parse(message);
         console.log('Data: ', data);
-        handleMessage(data);
+        events.emit('mqtt:message', data);
       } catch(err) {
         console.error('Error parsing message as JSON');
         console.error(' Topic:', topic);
@@ -89,6 +100,19 @@ function connectMqtt() {
         console.error(' ', message.toString())
       }
     });
+  });
+}
+
+function bindActions(events) {
+  events.on('mqtt:message', handleMessage);
+  events.on('button:press', function () {
+    console.log('button press');
+  });
+  events.on('button:hold', function () {
+    console.log('button hold');
+  });
+  events.on('button:release', function () {
+    console.log('button release');
   });
 }
 
@@ -105,10 +129,8 @@ function handleMessage(msg) {
   }
 }
 
-process.on('SIGINT', shutdown);
-
-function shutdown() {
+function shutdown(events) {
   console.log( "Exiting" );
-  components.led[0].off();
+  events.emit('app:exit');
   process.exit();
 }
