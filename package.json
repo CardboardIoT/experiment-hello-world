@@ -9,7 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andrew Nicolaou <me@andrewnicolaou.co.uk>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "config": "^1.16.0",
     "es6-promise": "^3.0.2",
