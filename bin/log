@@ -11,9 +11,10 @@ var args = parser.argv;
 var client = mqtt.connect();
 
 client.on('connect', function () {
+  var topic = 'ciot/#';
   console.log('Connected');
-  client.subscribe('ciot/test');
-  console.log('Subscribed');
+  client.subscribe(topic);
+  console.log('Subscribed to: ', topic);
 });
 
 client.on('message', function (topic, payload) {
