@@ -5,32 +5,47 @@ Converts MQTT messages to electronics actions on a Raspberry Pi.
 
 ## Requirements
 
-- node.js v0.12.x (newer v4 versions won't work)
+- Tested on node.js v0.12.7 (newer v4.x versions won't work)
 
 ## Install
 
 This depends on some Raspberry Pi-specifc libraries.
 
-1. Clone this repository
+1. Clone/copy this repository onto the Pi
 2. cd <repo-dir>
 3. `npm install`
+4. `cp config/local.json.example config/local.json`
+5. Give your device a name by changing `id` in `config/local.json`
 
 ## Run
 
     npm start
 
-Connects to an MQTT broker (test.mosquitto.org) and subscribes to the `ciot/test` topic. Tries to action any messages it gets.
+Connects to an MQTT broker (defined in config/default.json) and subscribes to the `ciot/test` topic. Tries to action any messages it gets.
+
+## Wire it up
+
+You need a button and an LED. Wire up as follows (Frizting diagram to follow).
+
+Use the [Raspberry Pinout guide](http://pi.gadgetoid.com/pinout/wiringpi) to figure out which pins.
+
+|| Wiring Pi Pin || Component    ||
+|  Ground         | Button & LED short leg / flat side  |
+|  0              | LED long led / non-flat side |
+|  3              | Button        |
 
 ## Does it work?
 
-Use the `bin/led` utility to turn an LED on Pin 7 on/off.
+Every device has an `id` in `config/local.json`.
 
-    bin/led --id 0 on
-    bin/led --id 0 off
+Use the `bin/led` utility to turn an LED on/off.
+
+    bin/led --device anne --id 0 on
+    bin/led --device anne --id 0 off
 
 ## Supported messages
 
-All messages must have an `id` string which indicated which component to target.
+All messages must have an `id` string which indicated which component to target. Currently this is always '0'.
 
 || Type || Data                    ||
 |  led  |  { "on": <true|false> }   |
@@ -39,4 +54,4 @@ All messages must have an `id` string which indicated which component to target.
 
 If using Raspbian Jessie (the latest version):
 
-    sudo mv ciot-device.service /etc/systemd/system/ciot-device.service 
+    sudo mv ciot-device.service /etc/systemd/system/ciot-device.service
