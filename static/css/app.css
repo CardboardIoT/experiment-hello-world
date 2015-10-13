@@ -1,0 +1,31 @@
+body {
+  font-family: sans-serif;
+  background: #333;
+}
+
+body, button {
+  color: #eee;
+  font-size: 4rem;
+}
+
+button {
+  display: inline-block;
+  width: 10rem;
+  height: 10rem;
+  padding: 2rem;
+  text-align: center;
+  border-radius: 50%;
+  border: 5px solid #eee;
+  background: transparent;
+}
+
+button:hover,
+button:focus {
+  color: rgba(0, 255, 255, 1);
+  border-color: rgba(0, 255, 255, 1);
+}
+
+button:active {
+  color: #333;
+  background-color: rgba(0, 255, 255, 1);
+}

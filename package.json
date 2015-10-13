@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "node main.js",
+    "static": "node static-server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andrew Nicolaou <me@andrewnicolaou.co.uk>",
@@ -12,6 +13,7 @@
   "dependencies": {
     "config": "^1.16.0",
     "es6-promise": "^3.0.2",
+    "express": "^4.13.3",
     "johnny-five": "^0.8.100",
     "mqtt": "^1.4.3",
     "optimist": "^0.6.1"

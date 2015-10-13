@@ -43,6 +43,18 @@ Use the `bin/led` utility to turn an LED on/off.
     bin/led --device anne --id 0 on
     bin/led --device anne --id 0 off
 
+## Web UI
+
+There's a very basic web UI that will:
+- turn the LED on/off
+- see the current state of the button
+
+To run the UI:
+
+   npm run static
+
+Visit http://localhost:3000/ in your browser to see the UI. The UI can be hosted anywhere. It uses the WebSocket bridge functionality of recent MQTT servers to communicate.
+
 ## Supported messages
 
 All messages must have an `id` string which indicated which component to target. Currently this is always '0'.
