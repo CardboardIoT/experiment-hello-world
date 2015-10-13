@@ -1,9 +1,9 @@
 [Service]
-WorkingDirectory=/home/pi/device
+WorkingDirectory=/home/pi/hello-world
 ExecStart=/usr/local/bin/npm start
 Restart=always
 StandardOutput=syslog
-SyslogIdentifier=ciot-device
+SyslogIdentifier=hello-world
 Environment=NODE_ENV=production
 # Environment=ANOTHER_KEY=true
 

@@ -66,4 +66,6 @@ All messages must have an `id` string which indicated which component to target.
 
 If using Raspbian Jessie (the latest version):
 
-    sudo mv ciot-device.service /etc/systemd/system/ciot-device.service
+    sudo mv hello-world.service /etc/systemd/system/hello-world.service
+
+Restart your Pi and the service should auto-run.
